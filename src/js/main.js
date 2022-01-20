@@ -1,1 +1,2 @@
-console.log('JS running!')
+// import getNewShip from "./ship";
+// console.log(getNewShip())
