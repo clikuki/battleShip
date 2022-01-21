@@ -14,12 +14,12 @@ const shipLengths = {
 	PATROLBOAT: 2,
 }
 
-// Use function to take advantage of 'this' keyword
 function hit(index)
 {
-	if (!this.indices.includes(index)) return;
+	if (!this.indices.includes(index)) return false;
 	this.hitIndices.push(index);
 	if (checkIfSunk(this)) this.isSunk = true;
+	return true;
 }
 
 const checkIfSunk = (ship) =>

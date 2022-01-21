@@ -44,15 +44,15 @@ describe('ship methods', () =>
 	test('hit() correctly sets hit index', () =>
 	{
 		ship.hit(0);
-		expect(ship.hitIndices.includes(0)).toBeTruthy();
+		expect(ship.hitIndices).toContain(0);
 		ship.hit(3);
-		expect(ship.hitIndices.includes(3)).toBeTruthy();
+		expect(ship.hitIndices).toContain(3);
 	})
 
 	test('hit() does not add indices outside of the ship', () =>
 	{
 		ship.hit(6);
-		expect(ship.hitIndices.includes(6)).toBeFalsy();
+		expect(ship.hitIndices).not.toContain(6);
 	})
 
 	test('hit() sets sunk prop if all indices are hit', () =>
