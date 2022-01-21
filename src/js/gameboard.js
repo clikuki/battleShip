@@ -28,6 +28,8 @@ function setShip(type, startIndex, isVertical)
 
 function recieveAttack(index)
 {
+	if (index === undefined) return 'attack index required';
+	if (this.missedHits.concat(this.shipHits).includes(index)) return 'tile has already been hit';
 	const ship = this.tiles[index];
 
 	if (ship?.hit(index))

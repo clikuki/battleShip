@@ -75,4 +75,16 @@ describe('gameboard methods', () =>
 		board.recieveAttack(12);
 		expect(sort(board.missedHits)).toEqual([12, 15, 34]);
 	})
+
+	test('recieveAttack() fails when no index is passed', () =>
+	{
+		expect(board.recieveAttack()).toMatch(/index/i);
+	})
+
+	test('recieveAttack() fails if tile has already been hit', () =>
+	{
+		const randIndex = Math.floor(Math.random() * 101);
+		board.recieveAttack(randIndex);
+		expect(board.recieveAttack(randIndex)).toMatch(/hit/i);
+	})
 })
