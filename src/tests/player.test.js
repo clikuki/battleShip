@@ -1,6 +1,6 @@
 const { getNewPlayer } = require('../js/player');
 
-describe('gameboard properties', () =>
+describe('player properties', () =>
 {
 	let player;
 	beforeEach(() =>

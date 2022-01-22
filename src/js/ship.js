@@ -57,6 +57,7 @@ const getNewShip = (type, startIndex, isVertical) =>
 		length,
 		isVertical,
 		isSunk: false,
+		startIndex,
 		indices,
 		hitIndices,
 		hit,

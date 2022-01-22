@@ -4,6 +4,10 @@ function setShip(type, startIndex, isVertical)
 {
 	const ship = getNewShip(type, startIndex, isVertical);
 
+	// Prevent ship from going over the edge
+	if ((isVertical && ship.indices.some(index => index >= 100))
+		|| (!isVertical && (startIndex % 10) + ship.length > 10)) return 'ship goes over the edge';
+
 	for (const index of ship.indices)
 	{
 		if (!this.tiles[index]) this.tiles[index] = ship;

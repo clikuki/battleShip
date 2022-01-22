@@ -36,7 +36,16 @@ describe('gameboard methods', () =>
 		expect(board.tiles[24]).toBe(ship2);
 	})
 
-	test('setShip() does not add ships over other ships', () =>
+	test('setShip() fails when ship goes over the edge', () =>
+	{
+		// Horizontal
+		expect(board.setShip(SHIPTYPES.PATROLBOAT, 9, false)).toMatch(/edge/i);
+
+		// Vertical
+		expect(board.setShip(SHIPTYPES.PATROLBOAT, 90, true)).toMatch(/edge/i);
+	})
+
+	test('setShip() fails when there is a ship in the way', () =>
 	{
 		const ship1 = board.setShip(SHIPTYPES.SUBMARINE, 15, false);
 		const ship2 = board.setShip(SHIPTYPES.SUBMARINE, 16, false);
