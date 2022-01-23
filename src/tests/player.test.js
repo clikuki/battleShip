@@ -34,13 +34,25 @@ describe('player methods', () =>
 	test('makeMove() makes a move on the correct tile', () =>
 	{
 		const randIndex = Math.floor(Math.random() * 101);
-		player.makeMove(computer, randIndex);
-		expect(computer.gameboard.missedHits).toContain(randIndex);
+		player.makeMove(randIndex);
+		expect(player.gameboard.missedHits).toContain(randIndex);
 	})
 
-	test('makeMove() makes random move if it is a computer', () =>
+	test('getMove() only returns random move if it is a computer', () =>
 	{
-		computer.makeMove(player);
-		expect(player.gameboard.missedHits.length).toBe(1);
+		expect(player.getMove()).toBeNull();
+	})
+
+	test('getMove() does not fire at already shot tiles', () =>
+	{
+		const moves = [];
+		for (let i = 0; i < 10; i++)
+		{
+			const move = computer.getMove(player);
+			player.makeMove(move);
+			expect(player.gameboard.missedHits.length).toBe(i + 1);
+			expect(moves).not.toContain(move);
+			moves.push(move);
+		}
 	})
 })

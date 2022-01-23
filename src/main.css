@@ -1,0 +1,98 @@
+:root {
+	/* Measurements */
+	--cell-size: 3rem;
+	--grid-padding: 5px;
+
+	/* Colors */
+	--cell-clr: #2e42c1;
+	--cell-hover-clr: #fd3f3f;
+	--cell-ship-hit-clr: #ff2020;
+	--grid-gap-clr: #0c102c;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	display: flex;
+	justify-content: space-around;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(10, var(--cell-size));
+	grid-template-rows: repeat(10, var(--cell-size));
+	gap: var(--grid-padding);
+	padding: var(--grid-padding);
+	background-color: var(--grid-gap-clr);
+	width: fit-content;
+}
+
+.grid .cell {
+	background-color: var(--cell-clr);
+	position: relative;
+	transition: all 200ms ease-out;
+}
+
+.grid .cell:hover {
+	background-color: var(--cell-hover-clr);
+}
+
+.grid .cell::after {
+	content: '';
+	position: absolute;
+	border-radius: 50%;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	transition: all 200ms ease-in;
+}
+
+.grid .cell.shot::after {
+	width: 10px;
+	height: 10px;
+	background-color: black;
+}
+
+.grid .cell.hadShip {
+	background-color: var(--cell-ship-hit-clr);
+}
+
+.ships {
+	position: relative;
+}
+
+.ships .ship {
+	z-index: 1;
+	position: absolute;
+	color: #ffffff;
+	border: 1px solid #ffffff;
+	text-align: center;
+	pointer-events: none;
+	height: var(--cell-size);
+	width: var(--cell-size);
+	--length: calc(
+		var(--cell-num, 1) * (var(--cell-size) + var(--grid-padding)) -
+			var(--grid-padding)
+	);
+	left: calc(
+		var(--left, 0) * (var(--cell-size) + var(--grid-padding)) +
+			var(--grid-padding)
+	);
+	top: calc(
+		var(--top, 0) * (var(--cell-size) + var(--grid-padding)) +
+			var(--grid-padding)
+	);
+}
+
+.ships .ship.horizontal {
+	width: var(--length);
+}
+
+.ships .ship.vertical {
+	writing-mode: vertical-lr;
+	height: var(--length);
+}

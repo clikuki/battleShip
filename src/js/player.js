@@ -1,21 +1,25 @@
 const { getNewBoard } = require('../js/gameboard');
 
-function makeMove(otherPlayer, attackIndex)
+function makeMove(attackIndex)
 {
-	const otherGameboard = otherPlayer.gameboard;
-	const hitTiles = otherGameboard.missedHits.concat(otherGameboard.shipHits);
-
-	if (this.isComputer)
+	if (typeof attackIndex === 'number')
 	{
-		// TODO: Make computer move smarter
-		do
-		{
-			attackIndex = Math.floor(Math.random() * 101);
-		}
-		while (hitTiles.includes(attackIndex));
+		return this.gameboard.recieveAttack(attackIndex);
 	}
+}
 
-	return otherGameboard.recieveAttack(attackIndex);
+function getMove(human)
+{
+	if (!this.isComputer) return null;
+	const allHitTiles = human.gameboard.missedHits.concat(human.gameboard.shipHits);
+	while (true)
+	{
+		const randTile = Math.floor(Math.random() * 100);
+		if (!allHitTiles.includes(randTile))
+		{
+			return randTile;
+		}
+	}
 }
 
 const getNewPlayer = (isComputer) =>
@@ -24,6 +28,7 @@ const getNewPlayer = (isComputer) =>
 		gameboard: getNewBoard(),
 		isComputer,
 		makeMove,
+		getMove,
 	}
 }
 

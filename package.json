@@ -4,7 +4,7 @@
 	"description": "",
 	"private": true,
 	"scripts": {
-		"test": "jest",
+		"test": "jest --env=jsdom",
 		"build": "webpack --config webpack.prod.js",
 		"serve": "webpack serve --open --config webpack.dev.js"
 	},
