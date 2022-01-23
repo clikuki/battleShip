@@ -1,40 +1,56 @@
 const { getNewPlayer } = require('./player');
 const { SHIPTYPES } = require('./ship');
-const { getPlayerContainer } = require('./render');
+const { getPlayerContainer, getShipElem } = require('./render');
 require('../main.css');
 
-const body = document.body;
+const setShip = (player, type, startIndex, isVertical) =>
+{
+	const shipObj = player.gameboard.setShip(type, startIndex, isVertical);
+	const shipElem = getShipElem(shipObj);
+	player.elems.shipContainer.append(shipElem);
+}
+
+const setClickEvents = (humanObj, computerObj) =>
+{
+	const updateCell = (player, cell, i) =>
+	{
+		cell.classList.add('shot');
+		const ship = player.makeMove(i);
+		if (ship)
+		{
+			cell.classList.add('hadShip');
+		}
+	}
+
+	computerObj.elems.cells.forEach((computerCell, i) =>
+	{
+		const clickEvent = () =>
+		{
+			const randIndex = computerObj.getMove(humanObj);
+			const playerCell = humanObj.elems.cells[randIndex];
+			updateCell(computerObj, computerCell, i);
+			updateCell(humanObj, playerCell, randIndex);
+			computerCell.removeEventListener('click', clickEvent);
+		}
+
+		computerCell.addEventListener('click', clickEvent);
+	})
+}
+
 const startGame = () =>
 {
-	const human = getNewPlayer(false);
-	const computer = getNewPlayer(true);
-	human.gameboard.setShip(SHIPTYPES.CARRIER, 43, false);
-	computer.gameboard.setShip(SHIPTYPES.CARRIER, 34, true);
-	const humanElemObj = getPlayerContainer(human, 'side human');
-	const computerElemObj = getPlayerContainer(computer, 'side computer');
+	const humanObj = getNewPlayer(false);
+	const computerObj = getNewPlayer(true);
+	humanObj.elems = getPlayerContainer(humanObj, 'side human');
+	computerObj.elems = getPlayerContainer(computerObj, 'side computer');
 
-	[[human, humanElemObj], [computer, computerElemObj]].forEach(([player, elemObj]) =>
-	{
-		const { cells } = elemObj;
-		cells.forEach((cell, i) =>
-		{
-			const clickEvent = () =>
-			{
-				cell.classList.add('shot');
-				const ship = player.makeMove(i);
-				if (ship)
-				{
-					cell.classList.add('hadShip');
-				}
+	// Set ships in advance for testing
+	setShip(humanObj, SHIPTYPES.CARRIER, 43, false);
+	setShip(computerObj, SHIPTYPES.CARRIER, 34, true);
 
-				cell.removeEventListener('click', clickEvent);
-			}
+	setClickEvents(humanObj, computerObj);
 
-			cell.addEventListener('click', clickEvent);
-		})
-	})
-
-	body.append(humanElemObj.mainElem, computerElemObj.mainElem);
+	document.body.replaceChildren(humanObj.elems.mainElem, computerObj.elems.mainElem);
 }
 
 startGame();
