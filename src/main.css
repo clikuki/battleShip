@@ -68,6 +68,11 @@ body {
 .ships .ship {
 	z-index: 1;
 	position: absolute;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	justify-content: space-evenly;
+	align-items: center;
 	color: #ffffff;
 	border: 1px solid #ffffff;
 	text-align: center;
@@ -93,6 +98,10 @@ body {
 }
 
 .ships .ship.vertical {
-	writing-mode: vertical-lr;
 	height: var(--length);
+	flex-direction: column;
+}
+
+.hide {
+	visibility: hidden;
 }

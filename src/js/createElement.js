@@ -10,7 +10,7 @@ const createElement = (tag, { props, children } = {}) =>
 			{
 				for (const [style, value] of Object.entries(props.style))
 				{
-					element.style[style] = value;
+					element.style.setProperty(style, value);
 				}
 			}
 			else if (typeof mainValue !== 'function') element.setAttribute(mainKey, mainValue);
