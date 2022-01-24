@@ -6,7 +6,7 @@ function setShip(type, startIndex, isVertical)
 
 	// Prevent ship from going over the edge
 	if ((isVertical && ship.indices.some(index => index >= 100))
-		|| (!isVertical && (startIndex % 10) + ship.length > 10)) return 'ship goes over the edge';
+		|| (!isVertical && (startIndex % 10) + ship.length > 10)) return null;
 
 	for (const index of ship.indices)
 	{
@@ -28,6 +28,16 @@ function setShip(type, startIndex, isVertical)
 
 	this.ships.push(ship);
 	return ship;
+}
+
+function removeShip(ship)
+{
+	const shipContainerIndex = this.ships.findIndex(x => x === ship);
+	this.ships.splice(shipContainerIndex, 1);
+	for (const index of ship.indices)
+	{
+		this.tiles[index] = null;
+	}
 }
 
 function recieveAttack(index)
@@ -65,6 +75,7 @@ const getNewBoard = () =>
 		missedHits: [],
 		shipHits: [],
 		setShip,
+		removeShip,
 		recieveAttack,
 	}
 }

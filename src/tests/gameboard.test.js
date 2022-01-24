@@ -39,10 +39,10 @@ describe('gameboard methods', () =>
 	test('setShip() fails when ship goes over the edge', () =>
 	{
 		// Horizontal
-		expect(board.setShip(SHIPTYPES.PATROLBOAT, 9, false)).toMatch(/edge/i);
+		expect(board.setShip(SHIPTYPES.PATROLBOAT, 9, false)).toBeNull();
 
 		// Vertical
-		expect(board.setShip(SHIPTYPES.PATROLBOAT, 90, true)).toMatch(/edge/i);
+		expect(board.setShip(SHIPTYPES.PATROLBOAT, 90, true)).toBeNull();
 	})
 
 	test('setShip() fails when there is a ship in the way', () =>
@@ -52,6 +52,13 @@ describe('gameboard methods', () =>
 
 		expect(ship1).toBeTruthy();
 		expect(ship2).toBeNull();
+	})
+
+	test('removeShip() removes ship', () =>
+	{
+		const ship = board.setShip(SHIPTYPES.SUBMARINE, 15, false);
+		board.removeShip(ship);
+		expect(board.ships).not.toContain(ship);
 	})
 
 	test('recieveAttack() correctly hits ship', () =>

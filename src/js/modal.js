@@ -38,7 +38,6 @@ const modalFuncs = {
 	},
 	hide: () =>
 	{
-		modalContent.replaceChildren();
 		hideModal();
 	},
 };

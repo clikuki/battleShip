@@ -196,7 +196,18 @@ body {
 
 /* || Utility classes + misc stylings */
 .hide {
-	visibility: hidden;
+	animation: hideAnim 200ms ease-in-out forwards;
+}
+
+@keyframes hideAnim {
+	0% {
+		opacity: 100%;
+		visibility: visible;
+	}
+	100% {
+		opacity: 0;
+		visibility: hidden;
+	}
 }
 
 .switchBtn {

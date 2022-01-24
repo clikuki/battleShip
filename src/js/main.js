@@ -1,5 +1,5 @@
 const { getNewPlayer } = require('./player');
-const { getNewShip, SHIPTYPES } = require('./ship');
+const { SHIPTYPES } = require('./ship');
 const { getGameboard, getShipElem } = require('./render');
 const createElement = require('./createElement');
 const modal = require('./modal');
@@ -8,12 +8,20 @@ require('../main.css');
 const setShip = (player, type, startIndex, isVertical) =>
 {
 	const shipObj = player.gameboard.setShip(type, startIndex, isVertical);
+	if (!shipObj) return shipObj;
+
 	const shipElem = getShipElem(shipObj);
 	player.elems.shipContainer.append(shipElem);
 	return {
 		elem: shipElem,
 		...shipObj,
 	}
+}
+
+const removeShip = (player, ship) =>
+{
+	player.gameboard.removeShip(ship);
+	ship.elem.remove();
 }
 
 const setClickEvents = (humanObj, computerObj) =>
@@ -47,24 +55,9 @@ const getShipPositions = async () =>
 {
 	const fakePlayer = getNewPlayer(false);
 	const fakeBoard = getGameboard(fakePlayer, 'placeShipBoard');
+	fakePlayer.elems = fakeBoard;
 	const ships = [];
-
 	let isVertical = false;
-	const switchOrientationBtn = createElement('button', {
-		children: [
-			'Change orientation: False',
-		],
-		props: {
-			class: 'switchBtn',
-			onclick: () =>
-			{
-				isVertical = !isVertical;
-				const isVerticalStr = isVertical.toString();
-				const newText = `Change orientation: ${isVerticalStr[0].toUpperCase()}${isVerticalStr.slice(1)}`;
-				switchOrientationBtn.textContent = newText;
-			}
-		}
-	})
 
 	const curShipTypeDisplay = createElement('span', {
 		props: {
@@ -72,22 +65,38 @@ const getShipPositions = async () =>
 		}
 	});
 
+	const removeListeners = () =>
+	{
+		for (const node of fakeBoard.cells)
+		{
+			node.onclick = null;
+			node.onmouseenter = null;
+			node.onmouseleave = null;
+		}
+	}
+
 	modal.show(
 		false,
 		'Place your ships!',
 		curShipTypeDisplay,
-		switchOrientationBtn,
+		createElement('button', {
+			// Btn to toggle between vertical and horizontal
+			children: [
+				'Change orientation: False',
+			],
+			props: {
+				class: 'switchBtn',
+				onclick: (ev) =>
+				{
+					isVertical = !isVertical;
+					const isVerticalStr = isVertical.toString();
+					const newText = `Change orientation: ${isVerticalStr[0].toUpperCase()}${isVerticalStr.slice(1)}`;
+					ev.target.textContent = newText;
+				}
+			}
+		}),
 		fakeBoard.mainElem,
 	);
-
-	const removeAllEventListeners = (eventNodePairs) =>
-	{
-		for (const [cell, clickEvent, hoverEvent] of eventNodePairs)
-		{
-			cell.removeEventListener('click', clickEvent);
-			cell.removeEventListener('mouseenter', hoverEvent);
-		}
-	}
 
 	for (const type in SHIPTYPES)
 	{
@@ -95,54 +104,42 @@ const getShipPositions = async () =>
 
 		const shipParams = await new Promise(resolve =>
 		{
-			let shipElem;
-			const eventNodePairs = fakeBoard.cells.map((cell, i) =>
+			let ship;
+			fakeBoard.cells.forEach((cell, i) =>
 			{
 				const clickEvent = () =>
 				{
-					if (!shipElem) return;
-					const shipObj = getNewShip(type, i, isVertical);
-					fakePlayer.elems = fakeBoard;
-					setShip(fakePlayer, type, i, isVertical);
-					removeAllEventListeners(eventNodePairs);
-					resolve(shipObj);
+					if (ship) resolve([type, i, isVertical]);
 				}
 
-				const mouseenter = () =>
+				const mouseEnterEvent = () =>
 				{
-					if (shipElem)
+					if (ship)
 					{
-						shipElem.remove();
-						shipElem = null;
+						removeShip(fakePlayer, ship)
+						ship = null;
 					}
 
-					const shipObj = getNewShip(type, i, isVertical);
-					if (isVertical && shipObj.indices.some(index => index >= 100)) return;
-					if (!isVertical && (i % 10) + shipObj.length > 10) return;
-					if (ships.some((otherShip) =>
-					{
-						return shipObj.indices.some(index =>
-						{
-							return otherShip.indices.some(otherIndex =>
-							{
-								return index === otherIndex;
-							});
-						})
-					})) return;
-
-					shipElem = getShipElem(shipObj);
-					fakeBoard.shipContainer.append(shipElem);
+					ship = setShip(fakePlayer, type, i, isVertical);
 				}
 
-				cell.addEventListener('click', clickEvent);
-				cell.addEventListener('mouseenter', mouseenter);
-				return [cell, clickEvent, mouseenter];
+				const mouseLeaveEvent = () =>
+				{
+					if (!ship) return;
+					removeShip(fakePlayer, ship)
+					ship = null;
+				}
+
+				cell.onclick = clickEvent;
+				cell.onmouseenter = mouseEnterEvent;
+				cell.onmouseleave = mouseLeaveEvent;
 			})
 		});
 
 		ships.push(shipParams);
 	}
 
+	removeListeners();
 	modal.hide();
 
 	return ships;
@@ -158,9 +155,9 @@ const startGame = async () =>
 	gameContainer.replaceChildren(humanObj.elems.mainElem, computerObj.elems.mainElem);
 
 	const shipPositions = await getShipPositions();
-	for (const shipObj of shipPositions)
+	for (const [type, startIndex, isVertical] of shipPositions)
 	{
-		setShip(humanObj, shipObj.type, shipObj.startIndex, shipObj.isVertical);
+		setShip(humanObj, type, startIndex, isVertical);
 	}
 
 	setClickEvents(humanObj, computerObj);
