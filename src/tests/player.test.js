@@ -1,4 +1,5 @@
 const { getNewPlayer } = require('../js/player');
+const { SHIPTYPES } = require('../js/ship');
 
 describe('player properties', () =>
 {
@@ -54,5 +55,17 @@ describe('player methods', () =>
 			expect(moves).not.toContain(move);
 			moves.push(move);
 		}
+	})
+
+	test('checkWin() returns true if all ships are sunk', () =>
+	{
+		player.gameboard.setShip(SHIPTYPES.PATROLBOAT, 13, false);
+		player.gameboard.setShip(SHIPTYPES.PATROLBOAT, 45, true);
+		expect(player.checkWin()).toBeFalsy();
+		player.makeMove(13);
+		player.makeMove(14);
+		player.makeMove(45);
+		player.makeMove(55);
+		expect(player.checkWin()).toBeTruthy();
 	})
 })

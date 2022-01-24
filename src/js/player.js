@@ -42,6 +42,13 @@ function generateShips()
 	}
 }
 
+function checkWin()
+{
+	const ships = this.gameboard.ships;
+	const sunkenShips = this.gameboard.sunkenShips;
+	return ships.length === sunkenShips.length;
+}
+
 const getNewPlayer = (isComputer) =>
 {
 	return {
@@ -50,6 +57,7 @@ const getNewPlayer = (isComputer) =>
 		makeMove,
 		getMove,
 		generateShips,
+		checkWin,
 	}
 }
 

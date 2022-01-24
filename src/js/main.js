@@ -33,22 +33,61 @@ const setClickEvents = (humanObj, computerObj) =>
 		if (ship)
 		{
 			cell.classList.add('hadShip');
+			if (player.checkWin())
+			{
+				nodeEventPairs.forEach(([node, cb]) =>
+				{
+					node.removeEventListener('click', cb);
+				})
+				return true;
+			}
 		}
+		return false;
 	}
 
-	computerObj.elems.cells.forEach((computerCell, i) =>
+	const nodeEventPairs = computerObj.elems.cells.map((computerCell, i) =>
 	{
 		const clickEvent = () =>
 		{
 			const randIndex = computerObj.getMove(humanObj);
 			const playerCell = humanObj.elems.cells[randIndex];
-			updateCell(computerObj, computerCell, i);
-			updateCell(humanObj, playerCell, randIndex);
+
+			// Only make computer play move if player hasn't already won
+			if (updateCell(computerObj, computerCell, i))
+			{
+				displayWin(humanObj);
+				return;
+			}
+			else if (updateCell(humanObj, playerCell, randIndex))
+			{
+				displayWin(computerObj);
+				return;
+			}
+
 			computerCell.removeEventListener('click', clickEvent);
 		}
 
 		computerCell.addEventListener('click', clickEvent);
+		return [computerCell, clickEvent];
 	})
+}
+
+const displayWin = (player) =>
+{
+	modal.show(
+		true, player.isComputer ? 'Game Over!' : 'Congratulations!',
+		createElement('p', {
+			children: [
+				`You ${(player.isComputer) ? 'lost.' : 'have won the game!'} Try again?`,
+			]
+		}),
+		createElement('button', {
+			props: {
+				onclick: startGame,
+			},
+			children: ['Restart'],
+		})
+	)
 }
 
 const getShipPositions = async () =>

@@ -86,7 +86,7 @@ body {
 	background-color: black;
 }
 
-.grid .cell.shot:hover {
+.grid .cell.shot:hover:not(.hadShip) {
 	background-color: var(--clr-primary-darker);
 }
 
