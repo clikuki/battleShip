@@ -1,5 +1,5 @@
 const { getNewPlayer } = require('./player');
-const { SHIPTYPES } = require('./ship');
+const { getNewShip, SHIPTYPES } = require('./ship');
 const { getGameboard, getShipElem } = require('./render');
 const createElement = require('./createElement');
 const modal = require('./modal');
@@ -10,6 +10,10 @@ const setShip = (player, type, startIndex, isVertical) =>
 	const shipObj = player.gameboard.setShip(type, startIndex, isVertical);
 	const shipElem = getShipElem(shipObj);
 	player.elems.shipContainer.append(shipElem);
+	return {
+		elem: shipElem,
+		...shipObj,
+	}
 }
 
 const setClickEvents = (humanObj, computerObj) =>
@@ -42,7 +46,7 @@ const setClickEvents = (humanObj, computerObj) =>
 const getShipPositions = async () =>
 {
 	const fakePlayer = getNewPlayer(false);
-	fakePlayer.elems = getGameboard(fakePlayer, 'placeShipBoard');
+	const fakeBoard = getGameboard(fakePlayer, 'placeShipBoard');
 	const ships = [];
 
 	let isVertical = false;
@@ -62,14 +66,18 @@ const getShipPositions = async () =>
 		}
 	})
 
-	const curShipTypeDisplay = createElement('span');
+	const curShipTypeDisplay = createElement('span', {
+		props: {
+			class: 'shipTypeDisplay',
+		}
+	});
 
 	modal.show(
 		false,
 		'Place your ships!',
 		curShipTypeDisplay,
 		switchOrientationBtn,
-		fakePlayer.elems.mainElem,
+		fakeBoard.mainElem,
 	);
 
 	const removeAllEventListeners = (eventNodePairs) =>
@@ -77,32 +85,58 @@ const getShipPositions = async () =>
 		for (const [cell, clickEvent, hoverEvent] of eventNodePairs)
 		{
 			cell.removeEventListener('click', clickEvent);
-			cell.removeEventListener('mouseover', hoverEvent);
+			cell.removeEventListener('mouseenter', hoverEvent);
 		}
 	}
 
 	for (const type in SHIPTYPES)
 	{
-		curShipTypeDisplay.textContent = `Current ship: ${type}`;
+		curShipTypeDisplay.textContent = `Current Ship: ${type}`;
 
 		const shipParams = await new Promise(resolve =>
 		{
-			const eventNodePairs = fakePlayer.elems.cells.map((cell, i) =>
+			let shipElem;
+			const eventNodePairs = fakeBoard.cells.map((cell, i) =>
 			{
 				const clickEvent = () =>
 				{
+					if (!shipElem) return;
+					const shipObj = getNewShip(type, i, isVertical);
+					fakePlayer.elems = fakeBoard;
+					setShip(fakePlayer, type, i, isVertical);
 					removeAllEventListeners(eventNodePairs);
-					resolve([type, i, isVertical]);
+					resolve(shipObj);
 				}
 
-				const hoverEvent = () =>
+				const mouseenter = () =>
 				{
+					if (shipElem)
+					{
+						shipElem.remove();
+						shipElem = null;
+					}
 
+					const shipObj = getNewShip(type, i, isVertical);
+					if (isVertical && shipObj.indices.some(index => index >= 100)) return;
+					if (!isVertical && (i % 10) + shipObj.length > 10) return;
+					if (ships.some((otherShip) =>
+					{
+						return shipObj.indices.some(index =>
+						{
+							return otherShip.indices.some(otherIndex =>
+							{
+								return index === otherIndex;
+							});
+						})
+					})) return;
+
+					shipElem = getShipElem(shipObj);
+					fakeBoard.shipContainer.append(shipElem);
 				}
 
 				cell.addEventListener('click', clickEvent);
-				cell.addEventListener('mouseover', hoverEvent);
-				return [cell, clickEvent, hoverEvent];
+				cell.addEventListener('mouseenter', mouseenter);
+				return [cell, clickEvent, mouseenter];
 			})
 		});
 
@@ -124,9 +158,9 @@ const startGame = async () =>
 	gameContainer.replaceChildren(humanObj.elems.mainElem, computerObj.elems.mainElem);
 
 	const shipPositions = await getShipPositions();
-	for (const [type, startIndex, isVertical] of shipPositions)
+	for (const shipObj of shipPositions)
 	{
-		setShip(humanObj, type, startIndex, isVertical);
+		setShip(humanObj, shipObj.type, shipObj.startIndex, shipObj.isVertical);
 	}
 
 	setClickEvents(humanObj, computerObj);
