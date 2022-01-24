@@ -1,4 +1,5 @@
 const { getNewBoard } = require('../js/gameboard');
+const { SHIPTYPES } = require('./ship');
 
 function makeMove(attackIndex)
 {
@@ -22,6 +23,25 @@ function getMove(human)
 	}
 }
 
+// If player is  a computer, then it sets ships on its board
+function generateShips()
+{
+	if (!this.isComputer) return;
+	for (const type in SHIPTYPES)
+	{
+		let ship;
+		while (!ship)
+		{
+			const randIndex = Math.floor(Math.random() * 101);
+			for (const isVertical of [false, true])
+			{
+				ship = this.gameboard.setShip(type, randIndex, isVertical);
+				if (ship) break;
+			}
+		}
+	}
+}
+
 const getNewPlayer = (isComputer) =>
 {
 	return {
@@ -29,6 +49,7 @@ const getNewPlayer = (isComputer) =>
 		isComputer,
 		makeMove,
 		getMove,
+		generateShips,
 	}
 }
 

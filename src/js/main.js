@@ -160,6 +160,7 @@ const startGame = async () =>
 		setShip(humanObj, type, startIndex, isVertical);
 	}
 
+	computerObj.generateShips();
 	setClickEvents(humanObj, computerObj);
 }
 
