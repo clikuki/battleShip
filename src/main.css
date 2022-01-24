@@ -7,6 +7,7 @@
 	--clr-primary: #2e42c1;
 	--clr-primary-light: #7885dd;
 	--clr-primary-dark: #132cd0;
+	--clr-primary-darker: #051684;
 	--clr-secondary: #fd3f3f;
 	--clr-secondary-light: #ff5858;
 	--clr-secondary-dark: #ff2020;
@@ -66,7 +67,7 @@ body {
 }
 
 .grid .cell:hover {
-	background-color: var(--clr-secondary);
+	background-color: var(--clr-secondary-light);
 }
 
 .grid .cell::after {
@@ -83,6 +84,10 @@ body {
 	width: 10px;
 	height: 10px;
 	background-color: black;
+}
+
+.grid .cell.shot:hover {
+	background-color: var(--clr-primary-darker);
 }
 
 .grid .cell.hadShip {
