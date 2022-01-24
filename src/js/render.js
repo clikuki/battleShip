@@ -68,7 +68,7 @@ const getShipLayer = (player) =>
 	};
 }
 
-const getPlayerContainer = (player, containerClasses) =>
+const getGameboard = (player, containerClasses) =>
 {
 	const shipLayer = getShipLayer(player);
 	const gridLayer = getGridLayer(player);
@@ -91,6 +91,6 @@ const getPlayerContainer = (player, containerClasses) =>
 }
 
 module.exports = {
-	getPlayerContainer,
+	getGameboard,
 	getShipElem,
 };

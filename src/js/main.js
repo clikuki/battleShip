@@ -1,6 +1,8 @@
 const { getNewPlayer } = require('./player');
 const { SHIPTYPES } = require('./ship');
-const { getPlayerContainer, getShipElem } = require('./render');
+const { getGameboard, getShipElem } = require('./render');
+const createElement = require('./createElement');
+const modal = require('./modal');
 require('../main.css');
 
 const setShip = (player, type, startIndex, isVertical) =>
@@ -37,20 +39,97 @@ const setClickEvents = (humanObj, computerObj) =>
 	})
 }
 
-const startGame = () =>
+const getShipPositions = async () =>
 {
+	const fakePlayer = getNewPlayer(false);
+	fakePlayer.elems = getGameboard(fakePlayer, 'placeShipBoard');
+	const ships = [];
+
+	let isVertical = false;
+	const switchOrientationBtn = createElement('button', {
+		children: [
+			'Change orientation: False',
+		],
+		props: {
+			class: 'switchBtn',
+			onclick: () =>
+			{
+				isVertical = !isVertical;
+				const isVerticalStr = isVertical.toString();
+				const newText = `Change orientation: ${isVerticalStr[0].toUpperCase()}${isVerticalStr.slice(1)}`;
+				switchOrientationBtn.textContent = newText;
+			}
+		}
+	})
+
+	const curShipTypeDisplay = createElement('span');
+
+	modal.show(
+		false,
+		'Place your ships!',
+		curShipTypeDisplay,
+		switchOrientationBtn,
+		fakePlayer.elems.mainElem,
+	);
+
+	const removeAllEventListeners = (eventNodePairs) =>
+	{
+		for (const [cell, clickEvent, hoverEvent] of eventNodePairs)
+		{
+			cell.removeEventListener('click', clickEvent);
+			cell.removeEventListener('mouseover', hoverEvent);
+		}
+	}
+
+	for (const type in SHIPTYPES)
+	{
+		curShipTypeDisplay.textContent = `Current ship: ${type}`;
+
+		const shipParams = await new Promise(resolve =>
+		{
+			const eventNodePairs = fakePlayer.elems.cells.map((cell, i) =>
+			{
+				const clickEvent = () =>
+				{
+					removeAllEventListeners(eventNodePairs);
+					resolve([type, i, isVertical]);
+				}
+
+				const hoverEvent = () =>
+				{
+
+				}
+
+				cell.addEventListener('click', clickEvent);
+				cell.addEventListener('mouseover', hoverEvent);
+				return [cell, clickEvent, hoverEvent];
+			})
+		});
+
+		ships.push(shipParams);
+	}
+
+	modal.hide();
+
+	return ships;
+}
+
+const startGame = async () =>
+{
+	const gameContainer = document.querySelector('main');
 	const humanObj = getNewPlayer(false);
 	const computerObj = getNewPlayer(true);
-	humanObj.elems = getPlayerContainer(humanObj, 'side human');
-	computerObj.elems = getPlayerContainer(computerObj, 'side computer');
+	humanObj.elems = getGameboard(humanObj, 'side human');
+	computerObj.elems = getGameboard(computerObj, 'side computer');
+	gameContainer.replaceChildren(humanObj.elems.mainElem, computerObj.elems.mainElem);
 
-	// Set ships in advance for testing
-	setShip(humanObj, SHIPTYPES.CARRIER, 43, false);
-	setShip(computerObj, SHIPTYPES.CARRIER, 34, true);
+	const shipPositions = await getShipPositions();
+	for (const [type, startIndex, isVertical] of shipPositions)
+	{
+		setShip(humanObj, type, startIndex, isVertical);
+	}
 
 	setClickEvents(humanObj, computerObj);
-
-	document.body.replaceChildren(humanObj.elems.mainElem, computerObj.elems.mainElem);
 }
 
 startGame();

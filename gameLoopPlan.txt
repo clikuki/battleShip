@@ -1,7 +1,7 @@
-1. Generate players (human and computer)
+/ 1. Generate players (human and computer)
 2. The player arranges their ships
-3. The player plays a move on the computer
-4. The computer plays a move on the player
+/ 3. The player plays a move on the computer
+/ 4. The computer plays a move on the player
 5. repeat steps 4 and 5 until one side's ships all sink
 6. display winner 
 7. allow the player to start a new game (return to step 1)
