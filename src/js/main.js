@@ -78,8 +78,13 @@ const displayWin = (player) =>
 		true, player.isComputer ? 'Game Over!' : 'Congratulations!',
 		createElement('p', {
 			children: [
-				`You ${(player.isComputer) ? 'lost.' : 'have won the game!'} Try again?`,
-			]
+				`You ${(player.isComputer) ?
+					'lost, and you were taken over by the hacker.' :
+					'won against the hacker!'} Try again?`,
+			],
+			props: {
+				class: 'gameFinish',
+			}
 		}),
 		createElement('button', {
 			props: {
@@ -203,4 +208,4 @@ const startGame = async () =>
 	setClickEvents(humanObj, computerObj);
 }
 
-startGame();
+window.startGame = startGame;
