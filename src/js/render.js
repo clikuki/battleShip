@@ -7,6 +7,7 @@ const getShipElem = (shipObj) =>
 	const orientationClass = shipObj.isVertical ? 'vertical' : 'horizontal';
 	const shipElem = createElement('div', {
 		props: {
+			'data-type': shipObj.type,
 			class: `ship ${orientationClass}`,
 			style: {
 				'--left': startIndex % 10,
@@ -14,10 +15,6 @@ const getShipElem = (shipObj) =>
 				'--cell-num': shipObj.length,
 			}
 		},
-		children: shipObj.type.split('')
-			.map(char => createElement('span', {
-				children: [char],
-			})),
 	})
 
 	return shipElem;
